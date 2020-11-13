@@ -45,6 +45,15 @@ namespace AccountLibrary.API.Controllers
         public async Task<ActionResult> GetAccounts(string accountNumber)
         {
             string token = string.Empty;
+            string traceId = string.Empty;
+            string serviceName = "MiniAccountDetails";
+            _logger.LogInformation("Method start account");
+            if (Request.Headers.ContainsKey("x-api-interactionId"))
+            {
+                traceId = Request.Headers["x-api-interactionId"];
+                _logger.LogInformation("Request Received : Service Name- " + serviceName + "Trace-Id - " + traceId);
+            }
+
             _logger.LogInformation("Method start account");
             string url = _configuration.GetSection("MySettings").GetSection("URLAccountDetails").Value;
             string url1 = _configuration.GetSection("MySettings").GetSection("URLAccountTransaction").Value;
@@ -67,9 +76,11 @@ namespace AccountLibrary.API.Controllers
 
 
             _logger.LogInformation("string response " + responseBodyAsText);
-
+            _logger.LogInformation("Response: Service Name- " + serviceName + "Trace-Id " + traceId + " Status Code -" + accountsResponse.StatusCode.ToString());
             if (accountsResponse.StatusCode == System.Net.HttpStatusCode.OK)
                 return Ok(accountdetailsresponse);
+
+            _logger.LogInformation("Response: Service Name- " + serviceName + "Trace-Id " + traceId + " Status Code -" + System.Net.HttpStatusCode.NotFound.ToString());
             return NotFound();
 
         }
